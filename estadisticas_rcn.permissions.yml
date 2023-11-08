@@ -1,0 +1,4 @@
+administer estadisticas_rcn configuration:
+  title: 'Administer estadisticas_rcn configuration'
+  description: 'Optional description.'
+  restrict access: true

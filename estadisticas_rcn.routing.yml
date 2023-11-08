@@ -1,0 +1,15 @@
+estadisticas_rcn.example:
+  path: '/estadisticas-rcn/example'
+  defaults:
+    _title: 'Example'
+    _controller: '\Drupal\estadisticas_rcn\Controller\EstadisticasRcnController::build'
+  requirements:
+    _permission: 'access content'
+
+estadisticas_rcn.settings_form:
+  path: '/admin/config/system/estadisticas-rcn'
+  defaults:
+    _title: 'Estadísticas RCN settings'
+    _form: 'Drupal\estadisticas_rcn\Form\SettingsForm'
+  requirements:
+    _permission: 'administer estadisticas_rcn configuration'

@@ -1,0 +1,6 @@
+estadisticas_rcn.settings_form:
+  title: Estadísticas RCN
+  description: Configure Estadísticas RCN.
+  parent: system.admin_config_system
+  route_name: estadisticas_rcn.settings_form
+  weight: 10
