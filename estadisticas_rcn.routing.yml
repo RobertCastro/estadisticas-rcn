@@ -1,5 +1,5 @@
 estadisticas_rcn.example:
-  path: '/admin/config/system/estadisticas-rcn/export'
+  path: '/admin/config/system/estadisticas-rcn/build'
   defaults:
     _title: 'Export data'
     _controller: '\Drupal\estadisticas_rcn\Controller\EstadisticasRcnController::build'
@@ -14,10 +14,18 @@ estadisticas_rcn.settings_form:
   requirements:
     _permission: 'administer estadisticas_rcn configuration'
 
-estadisticas_rcn.filter_form:
-  path: '/admin/config/system/estadisticas-rcn/filtro'
+estadisticas_rcn.export:
+  path: '/admin/config/system/estadisticas-rcn/export'
   defaults:
-    _title: 'Estadísticas RCN Filtro'
-    _controller: '\Drupal\estadisticas_rcn\Controller\EstadisticasRcnController::content'
+    _title: 'Estadísticas RCN Export'
+    _controller: '\Drupal\estadisticas_rcn\Controller\EstadisticasRcnController::contenidosPorFecha'
   requirements:
     _permission: 'access content'
+
+# estadisticas_rcn.diez:
+#   path: '/admin/config/system/estadisticas-rcn/10'
+#   defaults:
+#     _title: 'Estadísticas RCN Export'
+#     _controller: '\Drupal\estadisticas_rcn\Controller\EstadisticasRcnController::contenidosPorFecha'
+#   requirements:
+#     _permission: 'access content'
