@@ -8,3 +8,16 @@
  * This file is no longer required in Drupal 8.
  * @see https://www.drupal.org/node/2217931
  */
+
+ /**
+ * Implements hook_theme().
+ */
+function estadisticas_rcn_theme($existing, $type, $theme, $path) {
+    return [
+      'estadisticas_rcn_contenidos' => [
+        'variables' => ['items' => [], 'baseurl' => ''],
+        'template' => 'estadisticas-rcn-contenidos',
+      ],
+    ];
+  }
+  

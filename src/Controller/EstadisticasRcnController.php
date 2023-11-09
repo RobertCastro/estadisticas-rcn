@@ -35,17 +35,18 @@ class EstadisticasRcnController extends ControllerBase {
     $build = [];
     // Incluir el formulario de fechas
     $build['form'] = \Drupal::formBuilder()->getForm('Drupal\estadisticas_rcn\Form\EstadisticasRcnFilterForm');
+    // Obtener los tipos de contenido seleccionados desde la configuración.
+    $config = $this->config('estadisticas_rcn.settings');
 
-    $configFilter = $this->config('estadisticas_rcn.settings');
-    $fecha_inicial = $configFilter->get('fecha_inicial');
-    $fecha_final = $configFilter->get('fecha_final');
+    // $configFilter = $this->config('estadisticas_rcn.settings');
+    $fecha_inicial = $config->get('fecha_inicial');
+    $fecha_final = $config->get('fecha_final');
+    $default_base_url = $config->get('base_url');
 
     // Convertir las fechas a formato UNIX timestamp.
     $fecha_inicial = strtotime($fecha_inicial);
     $fecha_final = strtotime($fecha_final) + (24 * 60 * 60 - 1); // Incluir todo el día final.
 
-    // Obtener los tipos de contenido seleccionados desde la configuración.
-    $config = $this->config('estadisticas_rcn.settings');
     $content_types = $config->get('content_types');
 
     // Filtrar los nodos por tipo de contenido y rango de fechas.
@@ -66,12 +67,30 @@ class EstadisticasRcnController extends ControllerBase {
       return $build;
     }
 
+    $items = [];
     foreach ($nodes as $node) {
-      // Construir el render array 
-      $build[] = [
-        '#markup' => $node->label() . ' (' . $node->id() . ')',
+
+      $section_entity = $node->field_section->entity;
+      $section_label = $section_entity ? $section_entity->name() : $this->t('No especificado');
+      $has_video = isset($node->field_nota_con_video) ? $node->field_nota_con_video->value : FALSE;
+
+      $items[] = [
+        'title' => $node->label(),
+        'date' => $node->getCreatedTime(),
+        'author' => $node->getOwner()->getDisplayName(),
+        'section' => $section_label,
+        'has_video' => $has_video,
+        'link' => $node->toUrl()->toString(),
+        'content_type' => $node->bundle(),
       ];
     }
+
+    // Agregar el array de items al build y especificar el template.
+    $build['content_table'] = [
+      '#theme' => 'estadisticas_rcn_contenidos',
+      '#items' => $items,
+      '#baseurl' => $default_base_url
+    ];
 
     return $build;
   }

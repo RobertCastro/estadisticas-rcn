@@ -1,0 +1,30 @@
+<table>
+  <thead>
+    <tr>
+      <th>{{ 'Título'|t }}</th>
+      <th>{{ 'Fecha'|t }}</th>
+      <th>{{ 'Usuario'|t }}</th>
+      <th>{{ 'Sección'|t }}</th>
+      <th>{{ 'Nota con Video'|t }}</th>
+      <th>{{ 'Enlace a Content'|t }}</th>
+      <th>{{ 'Content type'|t }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+      <tr>
+        <td>{{ item.title }}</td>
+        <td>{{ item.date|date("d/m/Y H:i") }}</td>
+        <td>{{ item.author }}</td>
+        <td>{{ item.section }}</td>
+        <td>{{ item.has_video ? 'Sí' : 'No' }}</td>
+        <td>{{ baseurl }}{{ item.link }}</td>
+        <td>{{ item.content_type }}</td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="7">{{ 'No hay contenidos disponibles.'|t }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

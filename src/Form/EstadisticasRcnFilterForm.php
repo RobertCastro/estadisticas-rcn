@@ -41,7 +41,7 @@ class EstadisticasRcnFilterForm extends FormBase {
 
     $form['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Aplicar filtro'),
+      '#value' => $this->t('APLICAR FILTRO'),
     ];
 
     return $form;
