@@ -4,6 +4,7 @@ namespace Drupal\estadisticas_rcn\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\NodeType;
 
 /**
  * Configure Estadísticas RCN settings for this site.
@@ -28,11 +29,23 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['example'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Example'),
-      '#default_value' => $this->config('estadisticas_rcn.settings')->get('example'),
+    // Get the content types.
+    $content_types = NodeType::loadMultiple();
+    // Prepare options array.
+    $options = [];
+    foreach ($content_types as $content_type) {
+      $options[$content_type->id()] = $content_type->label();
+    }
+
+    // Create checkboxes form element with content types.
+    $form['content_types'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Content Types'),
+      '#options' => $options,
+      '#default_value' => $this->config('estadisticas_rcn.settings')->get('content_types') ?: [],
+      '#description' => $this->t('Select the content types to include in statistics.'),
     ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -40,9 +53,8 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    if ($form_state->getValue('example') != 'example') {
-      $form_state->setErrorByName('example', $this->t('The value is not correct.'));
-    }
+    // Validation is not necessary for checkboxes if you're only interested in
+    // the checked values, but you could add validation if needed.
     parent::validateForm($form, $form_state);
   }
 
@@ -50,9 +62,11 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Save the selected content types.
     $this->config('estadisticas_rcn.settings')
-      ->set('example', $form_state->getValue('example'))
+      ->set('content_types', array_filter($form_state->getValue('content_types')))
       ->save();
+
     parent::submitForm($form, $form_state);
   }
 

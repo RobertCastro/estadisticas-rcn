@@ -22,4 +22,9 @@ class EstadisticasRcnController extends ControllerBase {
     return $build;
   }
 
+  public function content() {
+    // Return the form.
+    return \Drupal::formBuilder()->getForm('Drupal\estadisticas_rcn\Form\EstadisticasRcnFilterForm');
+  }
+
 }

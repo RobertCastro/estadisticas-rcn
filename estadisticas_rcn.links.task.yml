@@ -1,0 +1,5 @@
+estadisticas_rcn.configuracion:
+  route_name: entity.estadisticas_rcn.collection
+  title: 'Configuración'
+  base_route: entity.estadisticas_rcn.collection
+  weight: -1

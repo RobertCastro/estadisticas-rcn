@@ -1,6 +1,6 @@
 name: Estadísticas RCN
 type: module
-description: Modulo que permite generar datos de las diferentes entidades de dDrupal
+description: Modulo que permite generar datos de las diferentes entidades de Drupal
 package: RCN Television
 core: 8.x
 core_version_requirement: ^8 || ^9
