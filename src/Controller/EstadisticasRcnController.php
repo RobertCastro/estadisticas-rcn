@@ -102,74 +102,81 @@ class EstadisticasRcnController extends ControllerBase {
 
     return $build;
   }
-
+  
   public function ExportCSV() {
-    
-    $build = [];
-    $config = $this->config('estadisticas_rcn.settings');
-    $fecha_inicial = $config->get('fecha_inicial');
-    $fecha_final = $config->get('fecha_final');
-    $default_base_url = $config->get('base_url');
-    $content_types = $config->get('content_types');
-
-    $fecha_inicial = strtotime($fecha_inicial);
-    $fecha_final = strtotime($fecha_final) + (24 * 60 * 60 - 1);
-
-    $nids = \Drupal::entityQuery('node')
-      ->condition('status', 1)
-      ->condition('type', array_keys(array_filter($content_types)), 'IN')
-      ->condition('created', [$fecha_inicial, $fecha_final], 'BETWEEN')
-      ->range(0,10)
-      ->sort('created', 'DESC')
-      ->execute();
-
-    $nodes = Node::loadMultiple($nids);
-
-    // Verifica si hay nodos
-    if (empty($nodes)) {
-      $build[] = [
-        '#markup' => $this->t('No hay contenidos creados entre las fechas seleccionadas.'),
-      ];
-      return $build;
-    }
-
-    $items = [];
-    foreach ($nodes as $node) {
-
-      if ($node->hasField('field_seccion') && !$node->get('field_seccion')->isEmpty()) {
+      $config = $this->config('estadisticas_rcn.settings');
+      $fecha_inicial = $config->get('fecha_inicial');
+      $fecha_final = $config->get('fecha_final');
+      $content_types = $config->get('content_types');
+      $default_base_url = $config->get('base_url');
+  
+      $fecha_inicial = strtotime($fecha_inicial);
+      $fecha_final = strtotime($fecha_final) + (24 * 60 * 60 - 1);
+  
+      $nids = \Drupal::entityQuery('node')
+          ->condition('status', 1)
+          ->condition('type', array_keys(array_filter($content_types)), 'IN')
+          ->condition('created', [$fecha_inicial, $fecha_final], 'BETWEEN')
+          ->sort('created', 'DESC')
+          ->execute();
+  
+      $nodes = Node::loadMultiple($nids);
+  
+      if (empty($nodes)) {
+          return [
+              '#markup' => $this->t('No hay contenidos creados entre las fechas seleccionadas.'),
+          ];
+      }
+  
+      $items = [];
+      foreach ($nodes as $node) {
+        
+        $section_label = $this->t('No especificado');
+        if ($node->hasField('field_seccion') && !$node->get('field_seccion')->isEmpty()) {
           $section_entity = $node->field_seccion->entity;
           $section_label = $section_entity ? $section_entity->getName() : $this->t('No especificado');
-      } else {
-          $section_label = $this->t('No especificado');
+        }
+        $has_video = $node->hasField('field_nota_con_video') && !$node->get('field_nota_con_video')->isEmpty() ? $node->field_nota_con_video->value : FALSE;
+  
+        $items[] = [
+          'title' => $node->label(),
+          'date' => date('Y-m-d H:i:s', $node->getCreatedTime()),
+          'author' => $node->getOwner()->getDisplayName(),
+          'section' => $section_label,
+          'has_video' => $has_video ? 'Yes' : 'No',
+          'link' => $default_base_url . $node->toUrl()->toString(),
+          'content_type' => $node->bundle(),
+        ];
       }
-      $has_video = isset($node->field_nota_con_video) ? $node->field_nota_con_video->value : FALSE;
+  
+      $csv_lines = [];
+      $headers = ['Title', 'Date', 'Author', 'Section', 'Has Video', 'Link', 'Content Type'];
+      $csv_lines[] = $this->csv_escape(implode(',', $headers));
 
-      $items[] = [
-        'title' => $node->label(),
-        'date' => $node->getCreatedTime(),
-        'author' => $node->getOwner()->getDisplayName(),
-        'section' => $section_label,
-        'has_video' => $has_video,
-        'link' => $node->toUrl()->toString(),
-        'content_type' => $node->bundle(),
-      ];
-    }
+      foreach ($items as $item) {
+        $escaped_line = '';
+        foreach ($item as $field) {
+          $escaped_line .= $this->csv_escape($field) . ',';
+        }
+        $csv_lines[] = rtrim($escaped_line, ',');
+      }
 
-    $csv_lines = [];
-    $csv_lines[] = '"Title","Date","Author","Section","Has Video","Link","Content Type"'; // Encabezados del CSV
+      $csv_content = implode("\r\n", $csv_lines);
+      $csv_content = mb_convert_encoding($csv_content, 'UTF-8');
+      $bom = "\xEF\xBB\xBF"; // BOM para UTF-8
+      $csv_content = $bom . $csv_content;
 
-    foreach ($items as $item) {
-        $csv_lines[] = '"' . implode('","', array_map('strval', $item)) . '"';
-    }
+      $response = new Response($csv_content);
+      $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
+      $response->headers->set('Content-Disposition', 'attachment; filename="export.csv"');
 
-    $csv_content = implode("\r\n", $csv_lines);
-
-    $response = new Response($csv_content);
-    $response->headers->set('Content-Type', 'text/csv');
-    $response->headers->set('Content-Disposition', 'attachment; filename="export.csv"');
-
-    return $response;
-
+      return $response;
   }
+
+  private function csv_escape($field) {
+    $field_without_commas = str_replace(',', '', $field);
+    return $field_without_commas;
+  }
+
 
 }
