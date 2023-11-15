@@ -22,10 +22,11 @@ estadisticas_rcn.export:
   requirements:
     _permission: 'access content'
 
-# estadisticas_rcn.diez:
-#   path: '/admin/config/system/estadisticas-rcn/10'
-#   defaults:
-#     _title: 'Estadísticas RCN Export'
-#     _controller: '\Drupal\estadisticas_rcn\Controller\EstadisticasRcnController::contenidosPorFecha'
-#   requirements:
-#     _permission: 'access content'
+estadisticas_rcn.exportcsv:
+  path: '/admin/config/system/estadisticas-rcn/exportcsv'
+  defaults:
+    _controller: '\Drupal\estadisticas_rcn\Controller\EstadisticasRcnController::ExportCSV'
+    _title: 'Ejecutar función'
+  requirements:
+    _permission: 'administer site'
+
