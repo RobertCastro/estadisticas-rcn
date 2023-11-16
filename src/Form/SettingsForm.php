@@ -44,6 +44,7 @@ class SettingsForm extends ConfigFormBase {
       '#options' => $options,
       '#default_value' => $this->config('estadisticas_rcn.settings')->get('content_types') ?: [],
       '#description' => $this->t('Select the content types to include in statistics.'),
+      '#required' => TRUE,
     ];
     $form['base_url'] = [
       '#type' => 'textfield',

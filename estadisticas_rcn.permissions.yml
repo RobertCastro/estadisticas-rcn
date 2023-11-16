@@ -2,3 +2,7 @@ administer estadisticas_rcn configuration:
   title: 'Administer estadisticas_rcn configuration'
   description: 'Optional description.'
   restrict access: true
+
+export estadisticas_rcn data:
+  title: 'Exportar CSV'
+  description: 'Permite exportar los datos en CSV.'
