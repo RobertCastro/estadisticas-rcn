@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\node\Entity\NodeType;
+use Drupal\Core\Url;
 
 class EstadisticasRcnFilterForm extends FormBase {
 
@@ -22,6 +23,8 @@ class EstadisticasRcnFilterForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+
+    $form['#attached']['library'][] = 'estadisticas_rcn/estadisticas_rcn';
 
     $config = $this->config('estadisticas_rcn.settings');
 
@@ -51,8 +54,14 @@ class EstadisticasRcnFilterForm extends FormBase {
       '#value' => $this->t('APLICAR FILTRO'),
     ];
 
+    $form['btn_export'] = [
+      '#type' => 'link',
+      '#title' => $this->t('Exportar CSV'),
+      '#url' => Url::fromRoute('estadisticas_rcn.exportcsv'),
+      '#attributes' => ['class' => ['button', 'button--action', 'button--primary' ]],
+    ];
+
     return $form;
-    // return parent::buildForm($form, $form_state);
   }
 
   public function validateForm(array &$form, FormStateInterface $form_state) {
@@ -77,15 +86,13 @@ class EstadisticasRcnFilterForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Obtener la configuración editable.
+
     $config = \Drupal::configFactory()->getEditable('estadisticas_rcn.settings');
 
-    // Guardar los valores en la configuración.
     $config->set('fecha_inicial', $form_state->getValue('fecha_inicial'))
            ->set('fecha_final', $form_state->getValue('fecha_final'))
            ->save();
 
-    // Mensaje para el usuario.
     \Drupal::messenger()->addMessage($this->t('El filtro ha sido aplicado con las fechas: @fecha_inicial a @fecha_final', [
       '@fecha_inicial' => $form_state->getValue('fecha_inicial'), 
       '@fecha_final' => $form_state->getValue('fecha_final')

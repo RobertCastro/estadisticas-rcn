@@ -57,13 +57,6 @@ class EstadisticasRcnController extends ControllerBase {
       ->sort('created', 'DESC')
       ->execute();
 
-    $build['btn_export'] = [
-      '#type' => 'link',
-      '#title' => $this->t('Exportar CSV'),
-      '#url' => Url::fromRoute('estadisticas_rcn.exportcsv'),
-      '#attributes' => ['class' => ['button', 'button--action', 'button--primary' ]],
-    ];
-
     $nodes = Node::loadMultiple($nids);
 
     if (empty($nodes)) {

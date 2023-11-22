@@ -1,0 +1,19 @@
+form{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+form .js-form-item{
+    margin: 0 !important;
+    padding-right: 15px;
+}
+form #edit-submit{
+    align-self: end;
+    margin-bottom: 2px;
+}
+form .button--action{
+    align-self: end;
+    margin-bottom: 2px;
+    margin-left: auto;
+}
