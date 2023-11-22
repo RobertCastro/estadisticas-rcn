@@ -82,7 +82,7 @@ class EstadisticasRcnController extends ControllerBase {
       } else {
           $section_label = $this->t('No especificado');
       }
-      $has_video = isset($node->field_nota_con_video) ? $node->field_nota_con_video->value : FALSE;
+      $has_video = $node->hasField('field_nota_con_video') && !$node->get('field_nota_con_video')->isEmpty() ? 'Si' : 'No';
 
       $produccion = str_replace('_', '-', $node->field_domain_access->target_id);
       $domainStorage = \Drupal::entityTypeManager()->getStorage('domain')->load($node->field_domain_access->target_id);
@@ -146,7 +146,7 @@ class EstadisticasRcnController extends ControllerBase {
           $section_entity = $node->field_seccion->entity;
           $section_label = $section_entity ? $section_entity->getName() : $this->t('No especificado');
         }
-        $has_video = $node->hasField('field_nota_con_video') && !$node->get('field_nota_con_video')->isEmpty() ? $node->field_nota_con_video->value : FALSE;
+        $has_video = $node->hasField('field_nota_con_video') && !$node->get('field_nota_con_video')->isEmpty() ? 'Si' : 'No';
 
         $produccion = str_replace('_', '-', $node->field_domain_access->target_id);
         $domainStorage = \Drupal::entityTypeManager()->getStorage('domain')->load($node->field_domain_access->target_id);
