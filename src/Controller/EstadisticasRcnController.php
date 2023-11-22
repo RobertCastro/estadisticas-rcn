@@ -82,7 +82,7 @@ class EstadisticasRcnController extends ControllerBase {
       } else {
           $section_label = $this->t('No especificado');
       }
-      $has_video = isset($node->field_nota_con_video) ? $node->field_nota_con_video->value : FALSE;
+      $has_video = $node->hasField('field_nota_con_video') && !$node->get('field_nota_con_video')->isEmpty() ? 'Si' : 'No';
 
       $content_type = $node->bundle();
       $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
@@ -141,7 +141,7 @@ class EstadisticasRcnController extends ControllerBase {
           $section_entity = $node->field_seccion->entity;
           $section_label = $section_entity ? $section_entity->getName() : $this->t('No especificado');
         }
-        $has_video = $node->hasField('field_nota_con_video') && !$node->get('field_nota_con_video')->isEmpty() ? $node->field_nota_con_video->value : FALSE;
+        $has_video = $node->hasField('field_nota_con_video') && !$node->get('field_nota_con_video')->isEmpty() ? 'Si' : 'No';
 
         $content_type = $node->bundle();
         $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
@@ -152,7 +152,7 @@ class EstadisticasRcnController extends ControllerBase {
           'date' => date('Y-m-d H:i:s', $node->getCreatedTime()),
           'author' => $node->getOwner()->getDisplayName(),
           'section' => $section_label,
-          'has_video' => $has_video ? 'Yes' : 'No',
+          'has_video' => $has_video,
           'link' => $default_base_url . $node->toUrl()->toString(),
           'content_type' => $content_type_name,
         ];
