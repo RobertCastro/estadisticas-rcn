@@ -5,6 +5,7 @@ namespace Drupal\estadisticas_rcn\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\node\NodeInterface;
 use Drupal\node\Entity\Node;
 use Drupal\Core\Url;
 
@@ -83,6 +84,10 @@ class EstadisticasRcnController extends ControllerBase {
       }
       $has_video = isset($node->field_nota_con_video) ? $node->field_nota_con_video->value : FALSE;
 
+      $content_type = $node->bundle();
+      $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
+      $content_type_name = $content_type_entity ? $content_type_entity->label() : '';
+
       $items[] = [
         'title' => $node->label(),
         'date' => $node->getCreatedTime(),
@@ -90,7 +95,7 @@ class EstadisticasRcnController extends ControllerBase {
         'section' => $section_label,
         'has_video' => $has_video,
         'link' => $node->toUrl()->toString(),
-        'content_type' => $node->bundle(),
+        'content_type' => $content_type_name,
       ];
     }
 
@@ -137,6 +142,10 @@ class EstadisticasRcnController extends ControllerBase {
           $section_label = $section_entity ? $section_entity->getName() : $this->t('No especificado');
         }
         $has_video = $node->hasField('field_nota_con_video') && !$node->get('field_nota_con_video')->isEmpty() ? $node->field_nota_con_video->value : FALSE;
+
+        $content_type = $node->bundle();
+        $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
+        $content_type_name = $content_type_entity ? $content_type_entity->label() : '';
   
         $items[] = [
           'title' => $node->label(),
@@ -145,20 +154,18 @@ class EstadisticasRcnController extends ControllerBase {
           'section' => $section_label,
           'has_video' => $has_video ? 'Yes' : 'No',
           'link' => $default_base_url . $node->toUrl()->toString(),
-          'content_type' => $node->bundle(),
+          'content_type' => $content_type_name,
         ];
       }
   
       $csv_lines = [];
       $headers = ['Title', 'Date', 'Author', 'Section', 'Has Video', 'Link', 'Content Type'];
-      $csv_lines[] = $this->csv_escape(implode(',', $headers));
+      $escaped_headers = array_map([$this, 'csv_escape'], $headers);
+      $csv_lines[] = implode(',', $escaped_headers);
 
       foreach ($items as $item) {
-        $escaped_line = '';
-        foreach ($item as $field) {
-          $escaped_line .= $this->csv_escape($field) . ',';
-        }
-        $csv_lines[] = rtrim($escaped_line, ',');
+          $escaped_line = array_map([$this, 'csv_escape'], $item);
+          $csv_lines[] = implode(',', $escaped_line);
       }
 
       $csv_content = implode("\r\n", $csv_lines);
