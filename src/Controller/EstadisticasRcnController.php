@@ -5,6 +5,7 @@ namespace Drupal\estadisticas_rcn\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\taxonomy\Entity\Term;
+use Drupal\node\NodeInterface;
 use Drupal\node\Entity\Node;
 use Drupal\Core\Url;
 
@@ -41,7 +42,7 @@ class EstadisticasRcnController extends ControllerBase {
 
     $fecha_inicial = $config->get('fecha_inicial');
     $fecha_final = $config->get('fecha_final');
-    $default_base_url = $config->get('base_url');
+    // $default_base_url = $config->get('base_url');
 
     $fecha_inicial = strtotime($fecha_inicial);
     $fecha_final = strtotime($fecha_final) + (24 * 60 * 60 - 1);
@@ -83,6 +84,14 @@ class EstadisticasRcnController extends ControllerBase {
       }
       $has_video = isset($node->field_nota_con_video) ? $node->field_nota_con_video->value : FALSE;
 
+      $produccion = str_replace('_', '-', $node->field_domain_access->target_id);
+      $domainStorage = \Drupal::entityTypeManager()->getStorage('domain')->load($node->field_domain_access->target_id);
+      $nombre_produccion = $domainStorage->get('name');
+
+      $content_type = $node->bundle();
+      $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
+      $content_type_name = $content_type_entity ? $content_type_entity->label() : '';
+
       $items[] = [
         'title' => $node->label(),
         'date' => $node->getCreatedTime(),
@@ -90,14 +99,16 @@ class EstadisticasRcnController extends ControllerBase {
         'section' => $section_label,
         'has_video' => $has_video,
         'link' => $node->toUrl()->toString(),
-        'content_type' => $node->bundle(),
+        'content_type' => $content_type_name,
+        'produccion' => $produccion,
+        'nombre_produccion' => $nombre_produccion
       ];
     }
 
     $build['content_table'] = [
       '#theme' => 'estadisticas_rcn_contenidos',
       '#items' => $items,
-      '#baseurl' => $default_base_url
+      '#baseurl' => 'hola'
     ];
 
     return $build;
@@ -108,7 +119,6 @@ class EstadisticasRcnController extends ControllerBase {
       $fecha_inicial = $config->get('fecha_inicial');
       $fecha_final = $config->get('fecha_final');
       $content_types = $config->get('content_types');
-      $default_base_url = $config->get('base_url');
   
       $fecha_inicial = strtotime($fecha_inicial);
       $fecha_final = strtotime($fecha_final) + (24 * 60 * 60 - 1);
@@ -137,28 +147,39 @@ class EstadisticasRcnController extends ControllerBase {
           $section_label = $section_entity ? $section_entity->getName() : $this->t('No especificado');
         }
         $has_video = $node->hasField('field_nota_con_video') && !$node->get('field_nota_con_video')->isEmpty() ? $node->field_nota_con_video->value : FALSE;
+
+        $produccion = str_replace('_', '-', $node->field_domain_access->target_id);
+        $domainStorage = \Drupal::entityTypeManager()->getStorage('domain')->load($node->field_domain_access->target_id);
+        $nombre_produccion = $domainStorage->get('name');
+
+        $content_type = $node->bundle();
+        $content_type_entity = \Drupal::entityTypeManager()->getStorage('node_type')->load($content_type);
+        $content_type_name = $content_type_entity ? $content_type_entity->label() : '';
+
+        $link = 'https://www.canalrcn.com/' . $produccion . ltrim($node->toUrl()->toString(), '/');
+        $formatted_date = date('d/m/Y H:i', $node->getCreatedTime());
   
         $items[] = [
           'title' => $node->label(),
-          'date' => date('Y-m-d H:i:s', $node->getCreatedTime()),
+          'date' => $formatted_date,
           'author' => $node->getOwner()->getDisplayName(),
           'section' => $section_label,
-          'has_video' => $has_video ? 'Yes' : 'No',
-          'link' => $default_base_url . $node->toUrl()->toString(),
-          'content_type' => $node->bundle(),
+          'has_video' => $has_video,
+          'link' => $link,
+          'content_type' => $content_type_name,
         ];
       }
+
+     
   
       $csv_lines = [];
       $headers = ['Title', 'Date', 'Author', 'Section', 'Has Video', 'Link', 'Content Type'];
-      $csv_lines[] = $this->csv_escape(implode(',', $headers));
+      $escaped_headers = array_map([$this, 'csv_escape'], $headers);
+      $csv_lines[] = implode(',', $escaped_headers);
 
       foreach ($items as $item) {
-        $escaped_line = '';
-        foreach ($item as $field) {
-          $escaped_line .= $this->csv_escape($field) . ',';
-        }
-        $csv_lines[] = rtrim($escaped_line, ',');
+          $escaped_line = array_map([$this, 'csv_escape'], $item);
+          $csv_lines[] = implode(',', $escaped_line);
       }
 
       $csv_content = implode("\r\n", $csv_lines);
@@ -171,6 +192,7 @@ class EstadisticasRcnController extends ControllerBase {
       $response->headers->set('Content-Disposition', 'attachment; filename="export.csv"');
 
       return $response;
+
   }
 
   private function csv_escape($field) {

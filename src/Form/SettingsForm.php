@@ -46,12 +46,12 @@ class SettingsForm extends ConfigFormBase {
       '#description' => $this->t('Select the content types to include in statistics.'),
       '#required' => TRUE,
     ];
-    $form['base_url'] = [
-      '#type' => 'textfield',
-      '#title' => 'Default base URL',
-      '#default_value' => $this->config('estadisticas_rcn.settings')->get('base_url'),
-      '#required' => TRUE,
-    ];
+    // $form['base_url'] = [
+    //   '#type' => 'textfield',
+    //   '#title' => 'Default base URL',
+    //   '#default_value' => $this->config('estadisticas_rcn.settings')->get('base_url'),
+    //   '#required' => TRUE,
+    // ];
 
     return parent::buildForm($form, $form_state);
   }
@@ -72,7 +72,7 @@ class SettingsForm extends ConfigFormBase {
     // Save the selected content types.
     $this->config('estadisticas_rcn.settings')
       ->set('content_types', array_filter($form_state->getValue('content_types')))
-      ->set('base_url', $form_state->getValue('base_url'))
+      // ->set('base_url', $form_state->getValue('base_url'))
       ->save();
 
     parent::submitForm($form, $form_state);
