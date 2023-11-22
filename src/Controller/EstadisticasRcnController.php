@@ -42,7 +42,6 @@ class EstadisticasRcnController extends ControllerBase {
 
     $fecha_inicial = $config->get('fecha_inicial');
     $fecha_final = $config->get('fecha_final');
-    // $default_base_url = $config->get('base_url');
 
     $fecha_inicial = strtotime($fecha_inicial);
     $fecha_final = strtotime($fecha_final) + (24 * 60 * 60 - 1);
@@ -56,13 +55,6 @@ class EstadisticasRcnController extends ControllerBase {
       ->range(0,10)
       ->sort('created', 'DESC')
       ->execute();
-
-    $build['btn_export'] = [
-      '#type' => 'link',
-      '#title' => $this->t('Exportar CSV'),
-      '#url' => Url::fromRoute('estadisticas_rcn.exportcsv'),
-      '#attributes' => ['class' => ['button', 'button--action', 'button--primary' ]],
-    ];
 
     $nodes = Node::loadMultiple($nids);
 
@@ -107,8 +99,7 @@ class EstadisticasRcnController extends ControllerBase {
 
     $build['content_table'] = [
       '#theme' => 'estadisticas_rcn_contenidos',
-      '#items' => $items,
-      '#baseurl' => 'hola'
+      '#items' => $items
     ];
 
     return $build;

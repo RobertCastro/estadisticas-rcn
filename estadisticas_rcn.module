@@ -19,5 +19,4 @@ function estadisticas_rcn_theme($existing, $type, $theme, $path) {
         'template' => 'estadisticas-rcn-contenidos',
       ],
     ];
-  }
-  
+}
