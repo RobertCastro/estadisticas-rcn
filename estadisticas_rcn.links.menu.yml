@@ -4,3 +4,10 @@ estadisticas_rcn.settings_form:
   parent: system.admin_config_system
   route_name: estadisticas_rcn.settings_form
   weight: 10
+
+estadisticas_rcn.admin_export:
+  title: 'Generar reporte RCN'
+  description: 'Exportar datos de Estadísticas RCN'
+  parent: system.admin_config_system
+  route_name: estadisticas_rcn.export
+  weight: 100
